@@ -62,11 +62,17 @@ oc new-project "$CLUSTER_NAME" 1>/dev/null
 oc label namespace "$CLUSTER_NAME" cluster.open-cluster-management.io/managedCluster="$CLUSTER_NAME"
 oc apply -f "$WORK_DIR"/managed-cluster.yaml
 oc apply -f "$WORK_DIR"/klusterlet-addon-config.yaml
+sleep 3
 
+# 20200522 Add cluster-roles to the bootstrap-sa to allow registration  and work agent inspect the managedclusters
+oc adm policy add-cluster-role-to-user open-cluster-management:managedcluster:${CLUSTER_NAME} -z ${CLUSTER_NAME}-bootstrap-sa -n $CLUSTER_NAME
+oc adm policy add-cluster-role-to-user open-cluster-management:managedcluster:work -z ${CLUSTER_NAME}-bootstrap-sa -n $CLUSTER_NAME
+oc adm policy add-cluster-role-to-user open-cluster-management:managedcluster:registration -z ${CLUSTER_NAME}-bootstrap-sa -n $CLUSTER_NAME
 sleep 3
 
 oc get secret "$CLUSTER_NAME"-import -n "$CLUSTER_NAME" -o jsonpath={.data.import\\.yaml} | base64 --decode > "$SPOKE_DIR"/import.yaml
 
 KUBECONFIG=$(yq eval-all '. | select(.metadata.name == "bootstrap-hub-kubeconfig") | .data.kubeconfig' "$SPOKE_DIR"/import.yaml)
 sed -i "s/{{ .clustername }}/${CLUSTER_NAME}/g" ${MANIFESTS_DIR}/klusterlet.yaml
-sed -i "s/{{ .kubeconfig }}/${KUBECONFIG}/g" ${MANIFESTS_DIR}/klusterlet-kubeconfighub.yaml
+sed -i "s/{{ .kubeconfig }}/${KUBECONFIG}/g" ${MANIFESTS_DIR}/klusterlet-bootstraphubkubeconfig.yaml
+sed -i "s/{{ .kubeconfig }}/${KUBECONFIG}/g" ${MANIFESTS_DIR}/klusterlet-hubkubeconfigsecret.yaml
