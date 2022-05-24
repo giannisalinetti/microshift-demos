@@ -18,6 +18,7 @@ then
 fi
 
 CLUSTER_NAME=${1:? "\$1 should be a cluster name (host part of the cluster's FQDN)"}
+DEVICE_IP=${2:? "\$2 should be the device ip address"}
 
 WORK_DIR=$HOME/.acm/"$CLUSTER_NAME"
 SPOKE_DIR="$WORK_DIR"/spoke
@@ -31,6 +32,8 @@ metadata:
   name: "$CLUSTER_NAME"
 spec:
   hubAcceptsClient: true
+  managedClusterClientConfigs:
+  - url: https://${DEVICE_IP}:6443
 EOF
 
 cat <<EOF >"$WORK_DIR"/klusterlet-addon-config.yaml
