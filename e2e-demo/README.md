@@ -69,7 +69,8 @@ Finally, deploy MicroShift from the GitOps repo you created at the beginning usi
     git checkout -b ${DEVICE_ID}
 
     CLUSTER_NAME="microshift-demo"
-    curl https://raw.githubusercontent.com/redhat-et/microshift-demos/main/e2e-demo/register_cluster.sh | bash -s - ${CLUSTER_NAME}
+    DEVICE_IP_ADDRESS="<device_ip_address>" # replace with the Microshift device IP address
+    curl https://raw.githubusercontent.com/giannisalinetti/microshift-demos/main/e2e-demo/register_cluster.sh | bash -s - ${CLUSTER_NAME} ${DEVICE_IP_ADDRESS}
 
     git add .
     git commit -m "Update cluster name and ACM credentials"
@@ -90,6 +91,6 @@ Follow these steps to deploy a sample application:
 
 As an example, you can use the following [git repository](https://github.com/oglok/edge-app). It will deploy a replicated NGINX container and expose it on the 30303 port. Once this application is deployed, you should see the NGINX landing page with your browser using your device's IP address on the port mentioned above:
 
-    http://DEVICE_IP:30303
+    http://${DEVICE_IP_ADDRESS}:30303
 
 Open Cluster Management allows you to view where the applications are deployed, and search for resources on specific clusters.
